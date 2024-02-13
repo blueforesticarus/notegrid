@@ -226,7 +226,11 @@
 	  reference_key = key_to_index("c");
 	  reference_note = Tonal.Note.midi("C4");	
 
+		downstep2  = Number(d.get("down_2"));
+		rightstep2 = Number(d.get("right_2"));
+		
 		$("#first").attr("step", downstep + " " + rightstep);
+		$("#second").attr("step", downstep2 + " " + rightstep2);
 	}
 
 	$("#query").on("change", update);
