@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>WebMidi.js Quick Start</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js" data-semver="2.2.0"
+    data-require="jquery@*"></script>
+
+</head>
+
+<body>
+  <h1>WebMidi.js Quick Start</h1>
+  <key-board data-map="accordian_keys(this);"></key-board>
+</body>
+
+</html>
+
+<script>
+
+  function accordian_keys(key){
+    const down_hs = 1;
+    const right_hs = 4;
+
+    const pin = {
+      note: 60, //middle c
+      r: 3,
+      c: 2, // C key
+    }
+
+    var note = key.row * down_hs + key.column * right_hs;
+    note += pin.note - pin.r *down_hs - pin.c * right_hs;
+
+    var i = note % 12;
+    var name = [
+      "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"
+    ][i];
+
+    $(key).attr("data-note-12", i);
+    $(key).attr("data-note-name", name);
+    $(key).attr("data-note", note);
+
+    var intervals = [
+      "1", "2b", "2", "3b", "3", "4", "5b", "5", "5#", "6", "7b", "7", ":", "9b", "9", "", "", "11", "", "", "", "13"
+    ];
+
+    var ii = note-60;
+    if(ii >= 0){
+      key.innerHTML = intervals[ii];
+    }else if (ii >= -12) {
+      ii += 12
+      key.innerHTML = "- " + intervals[ii];
+    }else{
+      key.innerHTML = ""
+    }
+
+    //key.innerHTML = name;
+
+
+  }
+</script>
+
+<template id="key-board">
+  <!--
+	This duplicates stylesheet for no reason. But there is no solution
+	see: https://web.dev/articles/constructable-stylesheets
+	-->
+  <style>
+    :host>#outer .key {
+      padding: 1em;
+      outline: solid;
+      position: relative;
+    }
+
+    :host>#outer>div {
+      display: block;
+    }
+
+    :host>#outer {
+      display: grid;
+      grid-gap: 1em;
+      padding-right: 5%;
+      grid-auto-columns: 1fr;
+      grid-auto-rows: 1fr;
+    }
+  </style>
+  <div id=outer></div>
+</template>
+
+<script type="module">
+  class KeyBoard extends HTMLElement {
+    constructor() {
+      super(); // always call super() first in the constructor.
+      this.attachShadow({ mode: 'open' });
+
+      let template = document.getElementById("key-board");
+      this.shadowRoot.appendChild(template.content.cloneNode(true));
+    }
+
+
+    /*
+    // This was better in theory but we get layout jitter
+    connectedCallback() {
+      // XXX this maybe needs to call slot change handler in case out of order bullshit
+      //  I have read this is an issue with dynamic created elements
+    	
+      // this was giving null in constructor
+      var delay = this.attributes.getNamedItem("data-delay") || this.attributes.getNamedItem("delay")
+      delay = (delay && delay.value) || 80;
+
+      const container = this.shadowRoot.querySelector('#ls');
+
+      const f = () => {	
+        container.appendChild(container.children[0])
+      };
+      setTimeout(f, 0); //run first to display before first interval
+      setInterval(f, delay);
+    }*/
+
+
+    connectedCallback() {
+      // Select the slot element from the ShadowDOM.
+      const container = $(this.shadowRoot.querySelector('#outer'));
+
+      const rows = [
+        ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "="],
+        ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "[", "]"],
+        ["A", "S", "D", "F", "G", "H", "J", "K", "L", ";", "\'"],
+        ["Z", "X", "C", "V", "B", "N", "M", ",", ".", "/"],
+      ]
+
+      const offset = ["0", "50%", "100%", "150%"];
+
+      for (const [i, row] of rows.entries()) {
+        for (const [ii, key] of row.entries()) {
+          var e = $(`<div data-key="${key}" data-row="${i}" data-col-"${ii}" class=key style="left: ${offset[i]}; grid-row: ${i + 1}; grid-column: ${ii + 1};">${key}</div>`)
+          e = e[0];
+          e.row = i;
+          e.column = ii;
+          e.key = key;
+
+          var oncreate = this.attributes.getNamedItem("data-map");
+          function foo(){
+            eval(oncreate.value);
+          }
+
+          foo.bind(e)()
+
+          container.append(e)
+        }
+      }
+    }
+
+    highlight_keys(keys) {
+      $(this.shadowRoot).find(".key").is()
+    }
+
+    /*
+    disconnectedCallback() {
+            console.log("Custom element removed from page.");
+    }
+
+    adoptedCallback() {
+      console.log("Custom element moved to new page.");
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      console.log(`Attribute ${name} has changed.`);
+    }
+     */
+  }
+
+  customElements.define('key-board', KeyBoard,);
+</script>

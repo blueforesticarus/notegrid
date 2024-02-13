@@ -1,0 +1,27 @@
+<div>
+    <!--
+        This part could be better with CSS3 attr() if any browser actually supported it.
+        then we could use attributes instead of inline style, which would make selecting an element easier.
+    -->>
+    <div style="grid-row: 1">
+        <div style="grid-column: 1">A</div>
+        <div style="grid-column: 2">B</div>
+    </div>
+    <div style="grid-row: 2">
+        <div style="grid-column: 1">C</div>
+        <div style="grid-column: 2">D</div>
+    </div>
+</div>
+<style>
+    body > div {
+        display: grid;
+    }
+
+    body > div > div {
+        display: contents;
+    }
+
+    body > div > div > div {
+        grid-row: inherit;
+    }
+</style>

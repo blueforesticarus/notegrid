@@ -1,0 +1,100 @@
+<midi-grid rows=14 columns=14 offset="50"></midi-grid>
+<style>
+    midi-grid {
+        position: fixed;
+        top: 10%;
+        bottom: 10%;
+        left: 10%;
+        right: 10%;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js" data-semver="2.2.0"
+  data-require="jquery@*"></script>
+
+<template id="midi-grid">
+    <!--
+      This duplicates stylesheet for no reason. But there is no solution
+      see: https://web.dev/articles/constructable-stylesheets
+      -->
+    <style>
+        :host {
+            overflow: hidden;
+            border: solid;
+        }
+        :host > div {
+            display: grid;
+            grid-auto-columns: 1fr;
+            grid-auto-rows: 1fr;
+            grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(10, 1fr);
+            height: 100%;
+        }
+
+        :host > div > .cell {
+            border: solid;
+            position: relative;
+        }
+    </style>
+
+    <div></div>
+</template>
+
+<script type="module">
+    class MidiGrid extends HTMLElement {
+        constructor() {
+            super(); // always call super() first in the constructor.
+            this.attachShadow({ mode: 'open' });
+
+            let template = document.getElementById("midi-grid");
+            this.shadowRoot.appendChild(template.content.cloneNode(true));
+        }
+
+        build(){
+            let div = $(this.shadowRoot).find("> div");
+            let rows = Number(this.attributes.getNamedItem("rows").value);
+            let columns = Number(this.attributes.getNamedItem("columns").value);
+            let offset = Number(this.attributes.getNamedItem("offset").value);
+
+            //extra for offset
+            let extra = Math.ceil((offset/100) * rows);
+            div.css("margin-right", -100 * extra/columns + "%");
+
+            for(var r = 0; r < rows; r += 1){
+                for(var c = 0; c < columns + extra; c += 1){
+                    let e = document.createElement("div");
+                    e.className = "cell"
+                    e.style.gridRow = r+1;
+                    e.style.gridColumn  = c+1;
+                    e.style.right = offset*r + "%";
+                    e.innerHTML = `${r} ${c}`;
+
+                    $(e).attr("row", r);
+                    $(e).attr("column", c);
+
+                    div.append(e);
+                }
+            }
+        }
+
+        connectedCallback() {
+            this.build()
+        }
+
+        /*
+        disconnectedCallback() {
+        }
+    
+        adoptedCallback() {
+          console.log("Custom element moved to new page.");
+        }
+    
+        attributeChangedCallback(name, oldValue, newValue) {
+          console.log(`Attribute ${name} has changed.`);
+        }
+         */
+    }
+
+    customElements.define('midi-grid', MidiGrid);
+</script>
