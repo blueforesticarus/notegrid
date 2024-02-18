@@ -1,0 +1,161 @@
+<script src="https://cdn.jsdelivr.net/npm/webmidi@latest/dist/iife/webmidi.iife.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tonal/browser/tonal.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+<script>
+	Object.defineProperty(Node.prototype, "$", { get: function(){ return $(this) }});
+</script>
+
+<style>
+	div.scratchpad {
+		position: relative;
+		overflow: hidden;
+	}
+
+	div.scratchpad > div{
+		position: relative;
+		overflow: visible;
+		
+		font-size: 3em;
+		font-family: sans;
+
+		padding-bottom: 1em;
+	}
+
+	.harmonics {
+		height: 1.5em;
+	}
+
+	.tone {
+		position:absolute;
+	}
+
+	.tone::after {
+		content: "▫";
+		margin-left: -50%;
+		color: var(--color);
+		/*opacity: calc(100% * var(--scale-adjust));*/
+	}
+
+	.tone[n="1"]::after{
+		content: "■";
+		color: var(--color);
+	}
+
+	.tone.in-chord::after{
+		content: "▪";
+	}
+
+	.toneline{
+		position: absolute;
+		outline: dashed grey 1px;
+		height: 100%;
+		width:0;
+		top: 0;
+	}
+
+	.toneline::after{
+		content: attr(note);
+		position: absolute;
+		bottom: calc(var(--label-offset) * 1em);
+		font-size: .3em;
+		left: -.5em;
+		background: var(--color);
+		z-index: 5;
+	}
+
+	*[pc="C" ]{--color: #F4DD18;}
+	*[pc="Db"]{--color: #094190;}
+	*[pc="D" ]{--color: #ff8000;}
+	*[pc="Eb"]{--color: #008978;}
+	*[pc="E" ]{--color: #a90019;}
+	*[pc="F" ]{--color: #c2f300;}
+	*[pc="Gb"]{--color: #6900dc;}
+	*[pc="G" ]{--color: #d3a100;}
+	*[pc="Ab"]{--color: #1bb5ff;}
+	*[pc="A" ]{--color: #f72a00;}
+	*[pc="Bb"]{--color: #22ba25;}
+	*[pc="B" ]{--color: #c31e95;}
+</style>
+
+<div class=scratchpad><div></div></div>
+
+<script>
+	var wb = $(`.scratchpad div`);
+
+	function scale(midi){
+		const low = Tonal.note("G1").midi;
+		const high = Tonal.note("A6").midi;
+		return 100 * ( midi - low ) / (high - low);
+	}
+
+	function draw_harmonics(note){
+		let div = $(`<div class=harmonics note=${note.midi}>`)
+		for(var i = 1; i <= 20; i++ ){
+			let h = note.harmonic(i);
+			
+			let e = $(`<div class=tone n=${i} pc=${h.note.pc}>`).css("left", scale(h.midi) + "%").css("--scale-adjust", i==1 ? 1 : 1 / (Math.log2(i-1)+1) ).appendTo(div);
+			if( Math.abs(h.cents) > 25 ) {
+				e.attr("pc", "");		
+			}
+
+
+			if( $(`.toneline[note=${h.note.name}]`).length == 0 ){
+				$(`<div class=toneline pc=${h.note.pc} note=${h.note.name}>`)
+					.css("left", scale(h.note.midi) + "%")
+					.css("--label-offset", h.note.midi % 1 )
+					.prependTo(wb);
+			}
+		}
+		return div;
+	}
+
+	function draw_chord(notes){
+		let div = $(`<div class=chord notes="${notes.map(n=>n.name).join(" ")}">`).appendTo(wb);
+		for(var note of notes){
+			draw_harmonics(note).appendTo(div);
+		}
+		div.find(notes.map(n=>`.tone[pc=${n.pc}]:not([n="1"])`).join(",")).addClass("in-chord");
+	}
+
+	Tonal.Note.__proto__.harmonic = function(i){
+		let freq = this.freq * i;
+		let note = Tonal.note(Tonal.Note.fromFreq(freq));
+		let cents = 1200 * Math.log2(freq / note.freq);
+		let midi = note.midi + cents / 100;
+
+		return {
+			freq,
+			note,
+			cents,
+			midi
+		}
+	}
+
+	wb.append("Major 7:")
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("E2"),
+		Tonal.note("G2"),
+		Tonal.note("B2"),
+	]);
+	
+	wb.append("<hr>Minor 7: (relative)");
+	
+	draw_chord([
+		Tonal.note("A1"),
+		Tonal.note("C2"),
+		Tonal.note("E2"),
+		Tonal.note("G2"),
+	]);
+
+	wb.append("<hr>Dominant 7:");
+	
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("E2"),
+		Tonal.note("G2"),
+		Tonal.note("Bb2"),
+	]);
+
+	var wb = $(`.scratchpad div`);
+</script>
