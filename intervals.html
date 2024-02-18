@@ -3,6 +3,7 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
 <script>
 	Object.defineProperty(Node.prototype, "$", { get: function(){ return $(this) }});
+	if(!window.chrome){alert("Requires chrome / chromium / brave / etc.");}
 </script>
 
 <style>
@@ -142,9 +143,21 @@
 			midi
 		}
 	}
+	wb.append("Major:")
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("E2"),
+		Tonal.note("G2"),
+	]);
+	
+	wb.append("Minor:")
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("Eb2"),
+		Tonal.note("G2"),
+	]);
 
-	/*
-	wb.append("Major 7:")
+	wb.append("<hr> Major 7:")
 	draw_chord([
 		Tonal.note("C2"),
 		Tonal.note("E2"),
@@ -152,7 +165,7 @@
 		Tonal.note("B2"),
 	]);
 	
-	wb.append("<hr>Minor 7: (relative)");
+	wb.append("Minor 7: (relative)");
 	
 	draw_chord([
 		Tonal.note("A1"),
@@ -161,7 +174,7 @@
 		Tonal.note("G2"),
 	]);
 
-	wb.append("<hr>Dominant 7:");
+	wb.append("Dominant 7:");
 	
 	draw_chord([
 		Tonal.note("C2"),
@@ -169,7 +182,6 @@
 		Tonal.note("G2"),
 		Tonal.note("Bb2"),
 	]);
-	*/
 
 	/*
 	let ns = Tonal.Chord.notes("maj9", "C2").map(Tonal.note);
@@ -178,6 +190,9 @@
 		wb.append("<hr>");
 	}
 	*/
+
+	
+	wb.append("<hr> Stacking thirds.");
 
 	draw_chord([
 		Tonal.note("C2"),
