@@ -99,7 +99,7 @@
 
 	function draw_harmonics(note){
 		let div = $(`<div class=harmonics note=${note.midi}>`)
-		for(var i = 1; i <= 30; i++ ){
+		for(var i = 1; i <= 20; i++ ){
 			let h = note.harmonic(i);
 			
 			let e = $(`<div class=tone n=${i} pc=${h.note.pc}>`).css("left", scale(h.midi) + "%").css("--scale-adjust", i==1 ? 1 : 1 / (Math.log2(i-1)+1) ).appendTo(div);
@@ -123,7 +123,10 @@
 		for(var note of notes){
 			draw_harmonics(note).appendTo(div);
 		}
-		div.find(notes.map(n=>`.tone[pc=${n.pc}]:not([n="1"])`).join(",")).addClass("in-chord");
+
+		for(var n of notes){
+			div.find(`.tone[pc="${n.pc}"]:not([n="1"])`).addClass("in-chord");
+		}
 	}
 
 	Tonal.Note.__proto__.harmonic = function(i){
@@ -209,6 +212,29 @@
 		Tonal.note("E2"),
 		Tonal.note("D3"),
 	]);
+	
+	wb.append("<hr> extend with 7 and 9");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("G2"),
+		Tonal.note("E2"),
+		Tonal.note("B2"),
+		Tonal.note("D3"),
+	]);
+	
+	wb.append("<hr> extend with 7, 9, 11, 13...");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("E2"),
+		Tonal.note("G2"),
+		Tonal.note("B2"),
+		Tonal.note("D3"),
+		Tonal.note("Gb3"),
+		Tonal.note("A3"),
+		Tonal.note("Db4"),
+		Tonal.note("E4"),
+		Tonal.note("Ab4"),
+	]);
 
 	wb.append("<hr> extend with b7");
 	draw_chord([
@@ -218,6 +244,31 @@
 		Tonal.note("Bb2"),
 	]);
 
+	wb.append("<hr> tritone");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("Gb2"),
+	]);
 	
+	wb.append("<hr> sus4");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("F2"),
+		Tonal.note("G2"),
+	]);
+	
+	wb.append("<hr> sus2");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("D2"),
+		Tonal.note("G2"),
+	]);
+	
+	wb.append("<hr> sus9");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("D3"),
+		Tonal.note("G2"),
+	]);
 	var wb = $(`.scratchpad div`);
 </script>
