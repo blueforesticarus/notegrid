@@ -36,8 +36,15 @@
 		/*opacity: calc(100% * var(--scale-adjust));*/
 	}
 
+	/*
+	.tone:not([pc])::after{
+		content: "×";
+		font-size: .8em;
+	}*/
+
 	.tone[n="1"]::after{
 		content: "■";
+		/*content: "▣";*/
 		color: var(--color);
 	}
 
@@ -79,6 +86,8 @@
 
 <div class=scratchpad><div></div></div>
 
+
+
 <script>
 	var wb = $(`.scratchpad div`);
 
@@ -90,12 +99,12 @@
 
 	function draw_harmonics(note){
 		let div = $(`<div class=harmonics note=${note.midi}>`)
-		for(var i = 1; i <= 20; i++ ){
+		for(var i = 1; i <= 30; i++ ){
 			let h = note.harmonic(i);
 			
 			let e = $(`<div class=tone n=${i} pc=${h.note.pc}>`).css("left", scale(h.midi) + "%").css("--scale-adjust", i==1 ? 1 : 1 / (Math.log2(i-1)+1) ).appendTo(div);
 			if( Math.abs(h.cents) > 25 ) {
-				e.attr("pc", "");		
+				e.removeAttr("pc");		
 			}
 
 
@@ -131,6 +140,7 @@
 		}
 	}
 
+	/*
 	wb.append("Major 7:")
 	draw_chord([
 		Tonal.note("C2"),
@@ -156,6 +166,58 @@
 		Tonal.note("G2"),
 		Tonal.note("Bb2"),
 	]);
+	*/
 
+	/*
+	let ns = Tonal.Chord.notes("maj9", "C2").map(Tonal.note);
+	for(var i = 1; i < ns.length; i++){
+		draw_chord(ns.slice(0, i));
+		wb.append("<hr>");
+	}
+	*/
+
+	draw_chord([
+		Tonal.note("C2"),
+	]);
+	wb.append("<hr>");
+
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("G2"),
+	]);
+	wb.append("<hr>");
+
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("G2"),
+		Tonal.note("E2"),
+	]);
+	wb.append("<hr>");
+	
+	wb.append("<hr> extend with 7");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("G2"),
+		Tonal.note("E2"),
+		Tonal.note("B2"),
+	]);
+	
+	wb.append("<hr> extend with 9");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("G2"),
+		Tonal.note("E2"),
+		Tonal.note("D3"),
+	]);
+
+	wb.append("<hr> extend with b7");
+	draw_chord([
+		Tonal.note("C2"),
+		Tonal.note("G2"),
+		Tonal.note("E2"),
+		Tonal.note("Bb2"),
+	]);
+
+	
 	var wb = $(`.scratchpad div`);
 </script>
